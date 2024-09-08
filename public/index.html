@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who Called Me?</title>
+</head>
+<body>
+    <h1>Who Called Me?</h1>
+    <form id="lookupForm">
+        <input type="text" id="phoneNumber" placeholder="Enter phone number" required>
+        <select id="country">
+            <option value="US">United States</option>
+            <option value="IN" selected>India</option>
+            <option value="UK">United Kingdom</option>
+            <option value="CA">Canada</option>
+            <option value="AU">Australia</option>
+            <option value="FR">France</option>
+            <option value="DE">Germany</option>
+            <option value="BR">Brazil</option>
+            <!-- Add more countries as needed -->
+        </select>
+        <button type="submit">Lookup</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('lookupForm').addEventListener('submit', async function (e) {
+            e.preventDefault(); // Prevent form submission
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const country = document.getElementById('country').value;
+            
+            try {
+                const response = await fetch(`/api/validate-phone?phoneNumber=${phoneNumber}&country=${country}`);
+                const data = await response.json();
+                
+                // Display the results
+                const resultDiv = document.getElementById('result');
+                if (data.error) {
+                    resultDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h2>Phone Details:</h2>
+                        <p>Name: ${data.name}</p>
+                        <p>Valid: ${data.valid ? 'Yes' : 'No'}</p>
+                        <p>Risk Score: ${data.risk_score}</p>
+                        <p>Carrier: ${data.carrier}</p>
+                        <p>Line Type: ${data.line_type}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error fetching phone number details:', error);
+                document.getElementById('result').innerHTML = `<p>Error fetching phone number details.</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
